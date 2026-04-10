@@ -24,32 +24,32 @@ graph TD
     TGTrigger[Telegram Trigger]:::n8n
     NormWeb[Normalize Website Data]:::logic
     NormTG[Normalize Telegram Data]:::logic
-    Config[⚙️ Configurator Setup]:::config
+    Config[Configurator Setup]:::config
 
     %% --- Processing Hub ---
     subgraph Processing [Data Sanitization Hub]
-        JSCode[<b>JS: Data Sanitization1</b><br/>- Clean Name<br/>- Phone Normalization]:::logic
-        PinDB[(Google Sheet<br/>TEST_LIST)]:::db
+        JSCode[JS: Data Sanitation]:::logic
+        PinDB[(Google Sheet)]:::db
         CheckDup{Check Duplicate}:::logic
     end
 
     %% --- Routing & Execution ---
     subgraph Routing [Smart Routing & Actions]
         NewOrOld{Duplicate Found?}:::logic
-        AlertDup[<b>Alert: Duplicate</b><br/>Telegram Manager<br/>Repeated touch]:::tg
-        SaveDB[<b>Save NEW Lead</b><br/>Append Row]:::db
-        AlertNew[<b>Alert: New Lead</b><br/>Telegram Manager]:::tg
-        Wait[<b>Wait</b><br/>2 Minutes]:::n8n
-        SendTwilio[<b>Send SMS</b><br/>via Twilio]:::twilio
+        AlertDup[Alert: Duplicate]:::tg
+        SaveDB[Save NEW Lead]:::db
+        AlertNew[Alert: New Lead]:::tg
+        Wait[Wait 2 min]:::n8n
+        SendTwilio[Send SMS via Twilio]:::twilio
     end
 
     %% --- Technical Guard ---
-    GlobalError[<b>Global Error Catch</b>]:::error
-    TechAlert[<b>Technical Alert</b><br/>Telegram Admin<br/>"Node Failed"]:::tg
+    GlobalError[Global Error Catch]:::error
+    TechAlert[Technical Alert: Node Failed]:::tg
 
     %% --- Main Flow Connections ---
-    SiteForm -->|POST Payload| WebHook
-    TGuser -->|Message| TGTrigger
+    SiteForm --> WebHook
+    TGuser --> TGTrigger
     
     WebHook --> NormWeb
     TGTrigger --> NormTG
@@ -60,8 +60,8 @@ graph TD
     Config --> JSCode
     JSCode --> CheckDup
     
-    CheckDup -.->|Lookup Contact| PinDB
-    PinDB -.->|Return Match| CheckDup
+    CheckDup -.-> PinDB
+    PinDB -.-> CheckDup
     CheckDup --> NewOrOld
 
     %% --- Routing Connections ---
@@ -73,8 +73,8 @@ graph TD
     Wait --> SendTwilio
 
     %% --- Error Guard Connection ---
-    Processing -.->|Critical Fail| GlobalError
-    Routing -.->|Critical Fail| GlobalError
+    Processing -.-> GlobalError
+    Routing -.-> GlobalError
     GlobalError --> TechAlert
 
     %% --- Styling ---
