@@ -1,0 +1,677 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "b3b5ebb5-c23f-413d-81e0-793fcfb6fbbb",
+      "name": "Telegram (Trigger)",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        7696,
+        3968
+      ],
+      "notesInFlow": true,
+      "webhookId": "bae9a489-0427-4920-957d-bbb44a77f271",
+      "alwaysOutputData": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "{telegram credential id here}",
+          "name": "Telegram account 7"
+        }
+      },
+      "notes": "1. Create a bot in @BotFather.\n2. Add a new Credential and paste the bot token there."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "Source",
+              "value": "Website",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "Name",
+              "value": "={{ $json.body.data.fields[0].value }}",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "Contact",
+              "value": "={{ $json.body.data.fields[2].value }}",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "Request",
+              "value": "={{ $json.body.message || 'No message' }}",
+              "type": "string"
+            },
+            {
+              "id": "a5",
+              "name": "UTM_Source",
+              "value": "={{ $json.query.utm_source || 'Organic' }}",
+              "type": "string"
+            },
+            {
+              "id": "a6",
+              "name": "Raw_Data",
+              "value": "={{ $json.body.data.fields[1].value }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d654cb5a-8413-45b1-a816-d75c956db21d",
+      "name": "Normalization (Website)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8144,
+        3744
+      ],
+      "notesInFlow": true,
+      "notes": "If you have different field names in your form (not 'name' and 'phone'), change them here."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "Source",
+              "value": "Telegram",
+              "type": "string"
+            },
+            {
+              "id": "b2",
+              "name": "Name",
+              "value": "={{ $json.message.from.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "b3",
+              "name": "Contact",
+              "value": "={{ $json.message.from.id }}",
+              "type": "string"
+            },
+            {
+              "id": "b4",
+              "name": "Request",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "b5",
+              "name": "UTM_Source",
+              "value": "Direct entry (TG)",
+              "type": "string"
+            },
+            {
+              "id": "b6",
+              "name": "Raw_Data",
+              "value": "={{ JSON.stringify($json.message) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ac005f4b-29ab-4745-a981-0ec4cf0a42e0",
+      "name": "Normalization (TG)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7904,
+        3968
+      ],
+      "notesInFlow": true,
+      "notes": "Here we save the internal Telegram user ID as the Contact."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "CONFIG_Sheet_ID",
+              "value": "{google sheet id here}",
+              "type": "string"
+            },
+            {
+              "id": "c2",
+              "name": "CONFIG_Admin_Chat",
+              "value": "{telegram chat id here}",
+              "type": "string"
+            },
+            {
+              "id": "c3",
+              "name": "CONFIG_Support_Bot",
+              "value": "{@support_bot_here}",
+              "type": "string"
+            },
+            {
+              "id": "389bc05c-d9af-4f17-a9ae-9a1d7c2fedf2",
+              "name": "CONFIG_Tab_Name",
+              "value": "test_list",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "1da543e8-734d-42f7-a5ff-63a474e8c65e",
+      "name": "⚙️ CONFIGURATOR",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8368,
+        3824
+      ],
+      "notesInFlow": true,
+      "notes": "🔥 MAIN SETTINGS NODE 🔥\nEnter your real IDs here. The rest of the nodes will pull data from here."
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.CONFIG_Sheet_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $json.CONFIG_Tab_Name }}",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Name",
+              "lookupValue": "={{ $json.Name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9c577c73-766b-405a-ae41-615f3b31194c",
+      "name": "Check Duplicate",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        8720,
+        3872
+      ],
+      "notesInFlow": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{google credential id here}",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "notes": "1. Connect your Google account.\n2. Make sure the table has a 'Contact' column."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3cb7a8e6-ca2f-4dba-9a49-c6507a3ecf94",
+              "leftValue": "={{ $json.row_number }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "99daef47-659d-4808-a1f8-67edf7121ed6",
+      "name": "Duplicate Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        8880,
+        3872
+      ],
+      "notesInFlow": true,
+      "notes": "TRUE (up) = number is already in the database.\nFALSE (right) = this is a completely new lead."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('⚙️ CONFIGURATOR').item.json.CONFIG_Sheet_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('⚙️ CONFIGURATOR').item.json.CONFIG_Tab_Name }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Contact": "={{ $('Data Sanitation1').item.json.Request }}",
+            "Name": "={{ $('Normalization (Website)').item.json.Name }}",
+            "Phone": "={{ $('Data Sanitation1').item.json.Contact }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Contact",
+              "displayName": "Contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "21a06282-4381-4088-b592-d9565917b7a8",
+      "name": "Save NEW Lead",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        9072,
+        3888
+      ],
+      "notesInFlow": true,
+      "retryOnFail": false,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "{google credential id here}",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "notes": "1. Connect Google.\n2. Drag variables (Source, Name, Raw_Data, etc.) into the corresponding fields."
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('⚙️ CONFIGURATOR').first().json.CONFIG_Admin_Chat }}",
+        "text": "=⚠️ *REPEATED REQUEST*\n\nThis contact is already in the database. New message from {{ $json.Name }}:\n_{{ $json.Request }}_\n\n*Source:* {{ $json.Source }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "cb226f79-556d-4979-86fd-fbd7afced83a",
+      "name": "Alert: Duplicate",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        9072,
+        3728
+      ],
+      "notesInFlow": true,
+      "webhookId": "48ad96f8-a713-4a4d-9538-eb0f558647ed",
+      "credentials": {
+        "telegramApi": {
+          "id": "{telegram credential id here}",
+          "name": "Telegram account 7"
+        }
+      },
+      "notes": "Notification to the manager about a repeated touch. No further setup needed."
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('⚙️ CONFIGURATOR').first().json.CONFIG_Admin_Chat }}",
+        "text": "=🔥 *NEW LEAD (SkoreHood)*\n\n*Source:* {{ $json.Source }}\n*Name:* {{ $json.Name }}\n*Contact:* {{ $json.Contact }}\n*Request:* {{ $json.Request }}\n*UTM:* {{ $json.UTM_Source }}\n\n✅ SMS notification sent to client.",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_notification": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "5dfc8908-0dd6-40d0-a7b6-f32da1684879",
+      "name": "Alert: New",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        9280,
+        3888
+      ],
+      "notesInFlow": true,
+      "webhookId": "fab0f21e-8e8a-4bc0-858b-3448f6d16630",
+      "credentials": {
+        "telegramApi": {
+          "id": "{telegram credential id here}",
+          "name": "Telegram account 7"
+        }
+      },
+      "notes": "Main notification about a successful deal. No further setup needed."
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "9678e23c-5b6f-42a2-b287-ae82c3ac5c55",
+      "name": "Respond to Webhook1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        7904,
+        3744
+      ],
+      "notesInFlow": true,
+      "notes": "Leave as is. Returns a '200 OK' response so the button on the site doesn't hang."
+    },
+    {
+      "parameters": {
+        "from": "{sender phone number here}",
+        "to": "{recipient phone number here}",
+        "message": "Hello lead",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        9584,
+        3888
+      ],
+      "id": "008292b5-29f9-4978-9c96-0ef2c436606b",
+      "name": "Send an SMS/MMS/WhatsApp message1",
+      "retryOnFail": false,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "twilioApi": {
+          "id": "{twilio credential id here}",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop through all incoming items\nfor (const item of $input.all()) {\n  // FORCE CONVERSION TO STRING: \n  // Prevents script from crashing if webhook sends phone as a Number instead of Text.\n  // Using ?? instead of || prevents deleting \"0\" if it's the only character.\n  let contact = String(item.json.Contact ?? \"\");\n  let name = String(item.json.Name ?? \"\");\n\n  // 1. Contact sanitization: keep only digits\n  // If the number starts with 80 (Belarus), change to 375\n  let cleanContact = contact.replace(/\\D/g, ''); \n  if (cleanContact.startsWith('80')) {\n    cleanContact = '375' + cleanContact.substring(2);\n  }\n\n  // 2. Pretty name: \"max\" -> \"Max\"\n  let cleanName = name.trim();\n  if (cleanName) {\n    cleanName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1).toLowerCase();\n  }\n\n  // Write the sanitized data back\n  item.json.Contact = cleanContact;\n  item.json.Name = cleanName;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8560,
+        3872
+      ],
+      "id": "5e2558b4-0cea-47f7-8b44-a13bcc1b6a64",
+      "name": "Data Sanitation1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        9440,
+        3888
+      ],
+      "id": "4e06aaa6-8625-4c81-b1d8-48a1a2e08402",
+      "name": "Wait1",
+      "webhookId": "fa8b1df1-ff37-4ee4-9ef5-fd3c1406d397"
+    },
+    {
+      "parameters": {},
+      "id": "fc99f635-d2d0-4a45-81ee-f30a274203f2",
+      "name": "Global Error Catch",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        8560,
+        4112
+      ],
+      "notesInFlow": true,
+      "notes": "This trigger will start AUTOMATICALLY if any other node in this workflow breaks."
+    },
+    {
+      "parameters": {
+        "chatId": "{telegram chat id here}",
+        "text": "=🚨 *CRITICAL ERROR IN N8N*\nNode: `{{ $json.execution.lastNodeExecuted }}`\nError: `{{ $json.execution.error.message }}`\n\nCustomer support bot: {@support_bot_here}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_notification": false,
+          "disable_web_page_preview": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "34224128-da60-41b6-9244-1e78a63edf2b",
+      "name": "Technical Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        8736,
+        4112
+      ],
+      "notesInFlow": true,
+      "webhookId": "4d8da890-5a29-4ff6-a2ea-25339b84473f",
+      "credentials": {
+        "telegramApi": {
+          "id": "{telegram credential id here}",
+          "name": "Telegram account 7"
+        }
+      },
+      "notes": "Specify your TG Chat ID directly to receive technical failures even if the Configurator breaks."
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "skorehood-leads",
+        "options": {}
+      },
+      "id": "6199ef7c-7807-4317-a53c-507b99048daa",
+      "name": "Website (Webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        7696,
+        3744
+      ],
+      "notesInFlow": true,
+      "webhookId": "ccd18586-6ae8-4621-9604-553b7773d156",
+      "notes": "1. Select Production URL.\n2. Paste this link into the settings of your web form (Tilda, Webflow, etc.)."
+    }
+  ],
+  "connections": {
+    "Telegram (Trigger)": {
+      "main": [
+        [
+          {
+            "node": "Normalization (TG)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalization (Website)": {
+      "main": [
+        [
+          {
+            "node": "⚙️ CONFIGURATOR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalization (TG)": {
+      "main": [
+        [
+          {
+            "node": "⚙️ CONFIGURATOR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚙️ CONFIGURATOR": {
+      "main": [
+        [
+          {
+            "node": "Data Sanitation1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Duplicate Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duplicate Found?": {
+      "main": [
+        [
+          {
+            "node": "Alert: Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save NEW Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save NEW Lead": {
+      "main": [
+        [
+          {
+            "node": "Alert: New",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert: New": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Normalization (Website)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an SMS/MMS/WhatsApp message1": {
+      "main": [
+        []
+      ]
+    },
+    "Data Sanitation1": {
+      "main": [
+        [
+          {
+            "node": "Check Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Send an SMS/MMS/WhatsApp message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Global Error Catch": {
+      "main": [
+        [
+          {
+            "node": "Technical Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Website (Webhook)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8d92170a71672627fa01342e3a0a23cb95970113566b5957cb86c13a27f42f5e"
+  }
+}
