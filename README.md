@@ -11,7 +11,7 @@ A highly resilient, automated lead-capture and routing architecture built with [
 - **Fail-Safe Alerting:** A global error-catching mechanism that notifies the admin via Telegram if any node fails.
 
 ## 🏗 Architecture Overview
-
+```mermaid
 graph TD
     %% --- Sources ---
     subgraph Sources [Input Channels]
@@ -86,7 +86,7 @@ graph TD
     classDef twilio fill:#F22F46,stroke:#333,stroke-width:1px,color:white;
     classDef config fill:#a1a1a1,stroke:#333,stroke-width:2px,color:black;
     classDef error fill:#FF0000,stroke:#333,stroke-width:2px,color:white;
-
+```
 1. **Trigger:** Webhook or Telegram Message.
 2. **Transform:** Data normalization and JS-based sanitation.
 3. **Database Check:** Lookup in Google Sheets.
