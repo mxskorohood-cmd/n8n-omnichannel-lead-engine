@@ -12,7 +12,80 @@ A highly resilient, automated lead-capture and routing architecture built with [
 
 ## 🏗 Architecture Overview
 
-![Architecture / Workflow Screenshot](assets/workflow-screenshot.png)
+graph TD
+    %% --- Sources ---
+    subgraph Sources [Input Channels]
+        SiteForm[Website Form]:::source
+        TGuser[Telegram User]:::source
+    end
+
+    %% --- Triggers & Normalization ---
+    WebHook[Webhook Trigger]:::n8n
+    TGTrigger[Telegram Trigger]:::n8n
+    NormWeb[Normalize Website Data]:::logic
+    NormTG[Normalize Telegram Data]:::logic
+    Config[⚙️ Configurator Setup]:::config
+
+    %% --- Processing Hub ---
+    subgraph Processing [Data Sanitization Hub]
+        JSCode[<b>JS: Data Sanitization1</b><br/>- Clean Name<br/>- Phone Normalization]:::logic
+        PinDB[(Google Sheet<br/>TEST_LIST)]:::db
+        CheckDup{Check Duplicate}:::logic
+    end
+
+    %% --- Routing & Execution ---
+    subgraph Routing [Smart Routing & Actions]
+        NewOrOld{Duplicate Found?}:::logic
+        AlertDup[<b>Alert: Duplicate</b><br/>Telegram Manager<br/>Repeated touch]:::tg
+        SaveDB[<b>Save NEW Lead</b><br/>Append Row]:::db
+        AlertNew[<b>Alert: New Lead</b><br/>Telegram Manager]:::tg
+        Wait[<b>Wait</b><br/>2 Minutes]:::n8n
+        SendTwilio[<b>Send SMS</b><br/>via Twilio]:::twilio
+    end
+
+    %% --- Technical Guard ---
+    GlobalError[<b>Global Error Catch</b>]:::error
+    TechAlert[<b>Technical Alert</b><br/>Telegram Admin<br/>"Node Failed"]:::tg
+
+    %% --- Main Flow Connections ---
+    SiteForm -->|POST Payload| WebHook
+    TGuser -->|Message| TGTrigger
+    
+    WebHook --> NormWeb
+    TGTrigger --> NormTG
+
+    NormWeb --> Config
+    NormTG --> Config
+
+    Config --> JSCode
+    JSCode --> CheckDup
+    
+    CheckDup -.->|Lookup Contact| PinDB
+    PinDB -.->|Return Match| CheckDup
+    CheckDup --> NewOrOld
+
+    %% --- Routing Connections ---
+    NewOrOld -->|YES| AlertDup
+    NewOrOld -->|NO| SaveDB
+
+    SaveDB --> AlertNew
+    AlertNew --> Wait
+    Wait --> SendTwilio
+
+    %% --- Error Guard Connection ---
+    Processing -.->|Critical Fail| GlobalError
+    Routing -.->|Critical Fail| GlobalError
+    GlobalError --> TechAlert
+
+    %% --- Styling ---
+    classDef source fill:#f9f,stroke:#333,stroke-width:2px,color:black;
+    classDef n8n fill:#FF6B6B,stroke:#333,stroke-width:1px,color:white;
+    classDef logic fill:#4ECDC4,stroke:#333,stroke-width:1px,color:black;
+    classDef db fill:#FFE66D,stroke:#333,stroke-width:1px,color:black;
+    classDef tg fill:#0088cc,stroke:#333,stroke-width:1px,color:white;
+    classDef twilio fill:#F22F46,stroke:#333,stroke-width:1px,color:white;
+    classDef config fill:#a1a1a1,stroke:#333,stroke-width:2px,color:black;
+    classDef error fill:#FF0000,stroke:#333,stroke-width:2px,color:white;
 
 1. **Trigger:** Webhook or Telegram Message.
 2. **Transform:** Data normalization and JS-based sanitation.
